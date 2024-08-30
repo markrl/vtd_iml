@@ -20,12 +20,14 @@ class AdwinDriftDetector:
 
     def log_batch(self, data, model):
         has_drift = 0
-        model = model.cuda()
+        if torch.cuda.is_available():
+            model = model.cuda()
         model.eval()
         with torch.no_grad():
             for bb in data:
                 x,y,_,_ = bb
-                x = x.cuda()
+                if torch.cuda.is_available():
+                    x = x.cuda()
                 y_hat = torch.argmax(model(x)[1], dim=-1).cpu()
                 results = 1*(y==y_hat)
                 for rr in results:

@@ -3,9 +3,9 @@ import torch.nn.functional as F
 
 import pickle
 import numpy as np
-from skactiveml.pool import RandomSampling, UncertaintySampling, EpistemicUncertaintySampling
-from skactiveml.pool import ProbabilisticAL, CostEmbeddingAL
-from skactiveml.utils import call_func, MISSING_LABEL
+# from skactiveml.pool import RandomSampling, UncertaintySampling, EpistemicUncertaintySampling
+# from skactiveml.pool import ProbabilisticAL, CostEmbeddingAL
+# from skactiveml.utils import call_func, MISSING_LABEL
 
 from utils.utils import DcfLoss
 
@@ -86,17 +86,17 @@ class StrategyManager:
         if 'cover' in method_list:
             idxs_dict['cover'] = cover_distribution(data_module, n_queries)
             metrics_dict['cover'] = 1
-        if 'alce' in method_list:
-            y = data_module.get_train_labels()
-            y_cand = torch.full(size=(self.logits.shape[0],), fill_value=MISSING_LABEL)
-            y = torch.cat([y_cand,y], dim=0)
-            X = self.extract_features(data_module)
-            sorted_idxs, scores = self.cost_obj.query(X, y, batch_size=self.logits.shape[0], return_utilities=True)
-            metrics_dict['alce'] = np.mean(scores[0, :len(sorted_idxs)])
-            if self.combo:
-                rank_dict['alce'] = sorted_idxs
-            else:
-                idxs_dict['alce'] = self.get_top_n(sorted_idxs, n_queries, data_module)
+        # if 'alce' in method_list:
+        #     y = data_module.get_train_labels()
+        #     y_cand = torch.full(size=(self.logits.shape[0],), fill_value=MISSING_LABEL)
+        #     y = torch.cat([y_cand,y], dim=0)
+        #     X = self.extract_features(data_module)
+        #     sorted_idxs, scores = self.cost_obj.query(X, y, batch_size=self.logits.shape[0], return_utilities=True)
+        #     metrics_dict['alce'] = np.mean(scores[0, :len(sorted_idxs)])
+        #     if self.combo:
+        #         rank_dict['alce'] = sorted_idxs
+        #     else:
+        #         idxs_dict['alce'] = self.get_top_n(sorted_idxs, n_queries, data_module)
 
         if self.combo=='rank':
             all_ranks = [rank_dict[kk] for kk in rank_dict.keys()]

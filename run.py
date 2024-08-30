@@ -22,6 +22,7 @@ from utils.hdddm import HDDDM
 from pdb import set_trace
 
 def main():
+    torch.set_num_threads(1)
     # Set pytorch precision
     torch.set_float32_matmul_precision('high')
     # Get and handle parameters
@@ -91,8 +92,8 @@ def main():
     trainer = Trainer(
         callbacks=callbacks,
         fast_dev_run=params.debug,
-        accelerator='gpu' if params.gpus>0 else 'cpu',
-        devices=[0],
+        accelerator='gpu' if params.gpus>0 and torch.cuda.is_available() else 'cpu',
+        devices=[0] if params.gpus>0 and torch.cuda.is_available() else 1,
         overfit_batches=params.overfit_batches,
         max_epochs=params.max_epochs,
         check_val_every_n_epoch=params.val_every_n_epochs,
