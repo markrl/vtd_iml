@@ -13,20 +13,21 @@ from river import drift
 from pdb import set_trace
 
 class AdwinDriftDetector:
-    def __init__(self, window=4):
+    def __init__(self, window=4, use_gpu=False):
         self.adwin = drift.ADWIN(clock=window)
         self.counter = 0
         self.drift_idxs = []
+        self.use_gpu = use_gpu
 
     def log_batch(self, data, model):
         has_drift = 0
-        if torch.cuda.is_available():
+        if self.use_gpu:
             model = model.cuda()
         model.eval()
         with torch.no_grad():
             for bb in data:
                 x,y,_,_ = bb
-                if torch.cuda.is_available():
+                if self.use_gpu:
                     x = x.cuda()
                 y_hat = torch.argmax(model(x)[1], dim=-1).cpu()
                 results = 1*(y==y_hat)

@@ -10,6 +10,7 @@ class FeedbackSimulator:
         self.params = params
         self.sim_type = params.sim_type
         self.max_fb_samples = params.max_fb_samples
+        self.use_gpu = params.gpus > 0
 
     def simulate(self, data_module, module):
         if self.sim_type is None or len(data_module.data_test)==0:
@@ -85,7 +86,7 @@ class FeedbackSimulator:
         else:
             loader = data_module.test_dataloader()
         with torch.no_grad():
-            if torch.cuda.is_available():
+            if self.use_gpu:
                 model = model.cuda()
                 logits = [model(batch[0].cuda())[-1] for batch in loader]
             else:

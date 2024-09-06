@@ -27,6 +27,8 @@ def main():
     torch.set_float32_matmul_precision('high')
     # Get and handle parameters
     params = get_params()
+    # Determine whether to use a GPU
+    use_gpu = (params.gpus>0 and torch.cuda.is_available())
     if params.overfit_batches >= 1:
         params.overfit_batches = int(params.overfit_batches)
     # Initialize query selection strategy object
@@ -39,13 +41,13 @@ def main():
                         'warn':int(params.n_queries/2*5),
                         'none':int(params.n_queries/2)}
         if params.drift_budget == 'adwin':
-            warn_ddm = AdwinDriftDetector(25)
-            true_ddm = AdwinDriftDetector(50)
+            warn_ddm = AdwinDriftDetector(25, use_gpu)
+            true_ddm = AdwinDriftDetector(50, use_gpu)
         else:
             warn_ddm = HDDDM()
             true_ddm = HDDDM()
     else:
-        adwin = AdwinDriftDetector()
+        adwin = AdwinDriftDetector(use_gpu=use_gpu)
     # Set up output directory
     out_dir = os.path.join('output', params.run_name)
     if os.path.exists(out_dir):
@@ -92,8 +94,8 @@ def main():
     trainer = Trainer(
         callbacks=callbacks,
         fast_dev_run=params.debug,
-        accelerator='gpu' if params.gpus>0 and torch.cuda.is_available() else 'cpu',
-        devices=[0] if params.gpus>0 and torch.cuda.is_available() else 1,
+        accelerator='gpu' if use_gpu else 'cpu',
+        devices=[0] if use_gpu else 1,
         overfit_batches=params.overfit_batches,
         max_epochs=params.max_epochs,
         check_val_every_n_epoch=params.val_every_n_epochs,
