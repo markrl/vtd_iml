@@ -1,8 +1,8 @@
-# The Interactive Machine Learning Paradigm
-The Interactive Machine Learning (IML) paradigm is a machine learning training scheme that allows a model to be trained to perform a specific task alongside a human expert who performs the same task. This repository contains code that implements the IML pipeline, application to the tasks of Voice-Type Discrimination (VTD) and Language Identification (LID), as well as many plotting, scoring, and feature extraction scripts.
+# Online Active Learning with Corrective Feedback
+Online Active Learning with Corrective Feedback (OAL-CF) is a machine learning training paradigm that allows a model to be trained to perform a specific task alongside a human expert who performs the same task. This repository contains code that implements the OAL-CF pipeline, application to the tasks of Voice-Type Discrimination (VTD) and Spoken Language Verification (SLV), as well as many plotting, scoring, and feature extraction scripts.
 
 ## Dependencies
-Dependencies are contained in the `requirements.txt` file. To equip your virtual environment with these dependencies, start a virtual environment with Python 3.9.18 installed and run this command:
+Dependencies are contained in the `requirements.txt` file. To equip your virtual environment with these dependencies, start a virtual environment with Python 3.11.9 installed and run this command:
 
 ```
 pip install -r requirements.txt
@@ -11,17 +11,17 @@ pip install -r requirements.txt
 Additional configuration of Pytorch for your machine may be required.
 
 ## Feature Extraction
-Python scripts for LID x-vector, ECAPA, and WavLM feature extraction are located in the `utils` directory (`extract_xvectors.py`, `extract_ecapa.py`, and `extract_wavlm.py`). To extract a feature from an MP3 audio dataset with train/dev/test splits, copy the script to the directory containing the split directories, and run the script there. The output will be placed in a directory called `wavlm`, `xvectors`, or `ecapalang` (depending on the script) with subdirectories called `train`, `test`, and `dev`.
+Python scripts for SLV x-vector, ECAPA, and WavLM feature extraction are located in the `utils` directory (`extract_xvectors.py`, `extract_ecapa.py`, and `extract_wavlm.py`). To extract a feature from an MP3 audio dataset with train/dev/test splits, copy the script to the directory containing the split directories, and run the script there. The output will be placed in a directory called `wavlm`, `xvectors`, or `ecapalang` (depending on the script) with subdirectories called `train`, `test`, and `dev`.
 
-Once the features are extracted, you can generate an order file that specifies the order in which LID samples are presented. This can be done by copying either `org_cluster.py` or `org_random.py` to the directory containing the split directories and running it there.
+Once the features are extracted, you can generate an order file that specifies the order in which SLV samples are presented. This can be done by copying either `org_cluster.py` or `org_random.py` to the directory containing the split directories and running it there.
 
 ## Demonstration
-Below are demonstrations of how to start VTD and LID training/evaluation runs using the IML paradigm. All commands should be run from the main directory of this repository. 
+Below are demonstrations of how to start VTD and SLV training/evaluation runs using the OAL-CF paradigm. All commands should be run from the main directory of this repository. 
 
 Parameters listed in `src/params.py` can be controlled via the command line. Note that all parameters related to feature or label directories (in the `Data arguments` section of the parameter file) will need to be adjusted to point to the correct places.
 
 ### VTD Example
-The full command to train and evaluate a model on the VTD task using the IML paradigm is shown below. Note that the `--sim_type` flag makes this an IML run rather than an OAL run.
+The full command to train and evaluate a model on the VTD task using the OAL-CF paradigm is shown below. Note that the `--sim_type` flag makes this an OAL-CF run rather than an OAL run.
 
 ```
 python run.py --run_name test_vtd --sim_type fpstps --max_fb_samples 16
@@ -33,14 +33,14 @@ The command above will only run a single VTD environment (rm1, mic20 from the SR
 bash scripts/run_parallel.sh test_vtd "--sim_type fpstps --max_fb_samples 16"
 ```
 
-### LID Example—African Continent
-Here is the full command to run a single split LID on the African Continent data. Note that the `--feat_root` parameter now points to a different directory.
+### SLV Example—African Continent
+Here is the full command to run a single split SLV on the African Continent data. Note that the `--feat_root` parameter now points to a different directory.
 
 ```
 python run.py --run_name test_aclid --sim_type fpstps --max_fb_samples 16 --env_name test --feat_root /mnt/usb1/AfricanContinentLID/ecapalang/
 ```
 
-### LID Example—Caucasus Region
+### SLV Example—Caucasus Region
 Here is the full command:
 
 ```
