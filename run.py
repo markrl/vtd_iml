@@ -2,6 +2,7 @@ import torch
 import numpy as np
 import os
 import sys
+import glob
 from copy import deepcopy
 import pickle
 
@@ -31,6 +32,21 @@ def main():
     use_gpu = (params.gpus>0 and torch.cuda.is_available())
     if params.overfit_batches >= 1:
         params.overfit_batches = int(params.overfit_batches)
+    # Handle feature directory
+    if params.feat_root=='auto':
+        if params.lid_target is None:
+            params.feat_root = '~/data/vtd/wavlm_11k_1hr/,~/data/vtd/xvectors_11k_1hr'
+        else:
+            for corpus in os.listdir(os.path.join(os.path.expanduser('~'), 'data/slv')):
+                file_list = glob.glob(os.path.join(os.path.expanduser('~'), 'data/slv', corpus, 
+                                                    'ecapalang', params.env_name, '*.npy'))
+                langs_list = [os.path.basename(ff).split('_')[2] for ff in file_list]
+                langs_list_unique = []
+                for lang in langs_list:
+                    if lang not in langs_list_unique:
+                        langs_list_unique.append(lang)
+                if params.lid_target in langs_list:
+                    params.feat_root = os.path.join(os.path.expanduser('~'), 'data/slv', corpus, 'ecapalang')
     # Initialize query selection strategy object
     sm = StrategyManager(params)
     # Initialize feedback simulator object

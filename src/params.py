@@ -146,9 +146,11 @@ def get_params():
                         help='use ensemble model')
 
     # Data arguments
-    parser.add_argument('--feat_root', type=str, default='/data/VTD/wavlm_11k_1hr/,/data/VTD/xvectors_11k_1hr',
-                        help='root directory for features')
-    parser.add_argument('--ann_root', type=str, default='/data/VTD/VTD_labels/all_labels_1hr',
+    # parser.add_argument('--feat_root', type=str, default='/data/VTD/wavlm_11k_1hr/,/data/VTD/xvectors_11k_1hr',
+    #                     help='root directory for features')
+    parser.add_argument('--feat_root', type=str, default='auto',
+                        help='root directory for features; `auto` uses the best features for the task')
+    parser.add_argument('--ann_root', type=str, default='~/data/vtd/all_labels_1hr',
                         help='path to annotations')
     parser.add_argument('--order_file', type=str, default='cluster',
                         help='path to file defining file ordering')
@@ -156,7 +158,7 @@ def get_params():
                         help='number of samples per batch/session')
     parser.add_argument('--env_name', type=str, default='rm1_mc20',
                         help='environment specification')
-    parser.add_argument('--lid_target', type=str, default='ha',
+    parser.add_argument('--lid_target', type=str, default=None,
                         help='target class for LID task')
 
 
