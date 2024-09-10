@@ -18,7 +18,7 @@ class StrategyManager:
         self.p_target = params.adapt_distr
         self.est_class = 'both'
         self.min_samples = 0
-        self.use_gpu = params.gpus > 0
+        self.use_gpu = params.gpus > 0 and torch.cuda.is_available()
         if params.combo=='clf':
             with open('clf.p', 'rb') as f:
                 self.clf = pickle.load(f)

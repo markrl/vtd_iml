@@ -10,7 +10,7 @@ class FeedbackSimulator:
         self.params = params
         self.sim_type = params.sim_type
         self.max_fb_samples = params.max_fb_samples
-        self.use_gpu = params.gpus > 0
+        self.use_gpu = params.gpus > 0 and torch.cuda.is_available()
 
     def simulate(self, data_module, module):
         if self.sim_type is None or len(data_module.data_test)==0:
