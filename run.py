@@ -34,11 +34,15 @@ def main():
         params.overfit_batches = int(params.overfit_batches)
     # Handle feature directory
     if params.feat_root=='auto':
-        if params.lid_target is None:
-            params.feat_root = '~/data/vtd/wavlm_11k_1hr/,~/data/vtd/xvectors_11k_1hr'
+        if os.path.exists(os.path.join(os.path.expanduser('~'), 'data')):
+            data_root = os.path.join(os.path.expanduser('~'), 'data')
         else:
-            for corpus in os.listdir(os.path.join(os.path.expanduser('~'), 'data/slv')):
-                file_list = glob.glob(os.path.join(os.path.expanduser('~'), 'data/slv', corpus, 
+            data_root = '/data'
+        if params.lid_target is None:
+            params.feat_root = os.path.join(data_root, 'vtd/wavlm_11k_1hr')+','+os.path.join(data_root, 'vtd/xvectors_11k_1hr')
+        else:
+            for corpus in os.listdir(os.path.join(data_root, 'slv')):
+                file_list = glob.glob(os.path.join(data_root, 'slv', corpus, 
                                                     'ecapalang', params.env_name, '*.npy'))
                 langs_list = [os.path.basename(ff).split('_')[2] for ff in file_list]
                 langs_list_unique = []
@@ -46,7 +50,7 @@ def main():
                     if lang not in langs_list_unique:
                         langs_list_unique.append(lang)
                 if params.lid_target in langs_list:
-                    params.feat_root = os.path.join(os.path.expanduser('~'), 'data/slv', corpus, 'ecapalang')
+                    params.feat_root = os.path.join(data_root, 'slv', corpus, 'ecapalang')
     # Initialize query selection strategy object
     sm = StrategyManager(params)
     # Initialize feedback simulator object
