@@ -14,7 +14,7 @@ def get_params():
                         help='base learning rate')
     parser.add_argument('--val_every_n_epochs', type=int, default=1,
                         help='check validation set every n epochs')
-    parser.add_argument('--gpus', type=int, default=1,
+    parser.add_argument('--gpus', type=int, default=0,
                         help='train on n gpus')
     parser.add_argument('--max_epochs', type=int, default=-1,
                         help='max number of epochs')
