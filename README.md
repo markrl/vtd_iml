@@ -37,14 +37,14 @@ The command above will only run a single VTD environment (rm1, mic20 from the SR
 bash scripts/run_parallel.sh test_vtd "--sim_type fpstps --max_fb_samples 16"
 ```
 
-## SLV Example—African Continent
+### SLV Example—African Continent
 Here is the full command to run a single split SLV on the African Continent data. Note that the `--feat_root` parameter now points to a different directory.
 
 ```
 python run.py --run_name test_aclid --sim_type fpstps --max_fb_samples 16 --env_name test --feat_root /mnt/usb1/AfricanContinentLID/ecapalang/
 ```
 
-## SLV Example—Caucasus Region
+### SLV Example—Caucasus Region
 Here is the full command:
 
 ```
@@ -53,11 +53,18 @@ python run.py --run_name test_aclid --sim_type fpstps --max_fb_samples 16 --env_
 
 And here is the script that runs all languages simultaneously:
 
-## Simultaneous Runs
+### Simultaneous Runs
 The commands above only runs one language. To run all tests for all languages, use the following bash script:
 
 ```
 bash scripts/run_lid_parallel.sh test_lid "--sim_type fpstps --max_fb_samples 16"
+```
+
+### Budget Planning
+To use planned non-uniform AL budgets with the `--budget_path` flag, first create a budget using `utils/plan_budget.py`. Before this can be done, there must be a directory filled with existing runs for the environments to be budgeted. Then, the script can be run as follows:
+
+```
+python utils/plan_budget.py [budget_type] path/to/runs/directory [budget_name] [other_parameters]
 ```
 
 ## Scoring
@@ -71,13 +78,6 @@ To see the aggregated scores for multiple runs with the same parameter settings 
 
 ```
 python scoring/print_basic_results.py output/run_dir/*
-```
-
-## Budget Planning
-To use planned non-uniform AL budgets with the `--budget_path` flag, first create a budget using `utils/plan_budget.py`. Before this can be done, there must be a directory filled with existing runs for the environments to be budgeted. Then, the script can be run as follows:
-
-```
-python utils/plan_budget.py [budget_type] path/to/runs/directory [budget_name] [other_parameters]
 ```
 
 ## IMLM Experiments
