@@ -120,6 +120,10 @@ def get_params():
                         help='choose the most informative feedback samples')
     parser.add_argument('--forget_n_batches', type=int, default=None,
                         help='forget adaptation data after n batches; `1`')
+    parser.add_argument('--memory_buffer', type=str, default=None,
+                        help='type of memory buffer')
+    parser.add_argument('--buffer_cap', type=int, default=1000,
+                        help='maximum memory buffer size')
     parser.add_argument('--reverse_order', default=False, action='store_true',
                         help='run OAL backward')
 
@@ -156,7 +160,7 @@ def get_params():
                         help='path to file defining file ordering')
     parser.add_argument('--samples_per_batch', type=int, default=720,
                         help='number of samples per batch/session')
-    parser.add_argument('--env_name', type=str, default='rm1_mc20',
+    parser.add_argument('--env_name', type=str, default='test',
                         help='environment specification')
     parser.add_argument('--lid_target', type=str, default=None,
                         help='target class for LID task')

@@ -152,10 +152,9 @@ def main():
     pre_ps, pre_ns = [], []
     budget = 0
     mm = 'combo' if params.combo is not None else al_methods[0]
-    if params.ensemble:
-        n_drifts = 0
     # Loop through all batches
     while data_module.current_batch < data_module.n_batches:
+        batch_start_time = time.time()
         # Print current session name and number
         print(f'STARTING {data_module.get_current_session_name()} ({data_module.current_batch+1}/{data_module.n_batches})')
         # Get prequential evaluation metrics from this batch
@@ -274,7 +273,8 @@ def main():
                 ns.append(int(test_results[0]['test/ns']))
             metric = None if len(al_methods)>1 or mm=='rand' else metrics_dict[mm]
             write_session(out_file, data_module.current_batch, test_results, (pre_fps,pre_fns,pre_ps,pre_ns,fps,fns,ps,ns), 
-                            data_module.get_class_balance(), len(data_module.data_train), metric, dist, n_al, cf_p, cf_n, has_drift)
+                            data_module.get_class_balance(), len(data_module.data_train), metric, dist, n_al, cf_p, cf_n, 
+                            has_drift, time.time()-batch_start_time)
         # Prepare transition to next batch
         module.n_train = len(data_module)
         data_module.next_batch()

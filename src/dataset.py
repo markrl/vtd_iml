@@ -104,10 +104,28 @@ class ImlDataModule(LightningDataModule):
     def transfer_samples(self, idxs):
         # Convert given inidices to base indices. This is the only function where this is necessary.
         idxs = [self.data_test.active_idxs[ii] for ii in idxs]
-        # Activate train, deactivate test
-        self.data_train.activate_samples(idxs)
-        self.data_test.deactivate_samples(idxs)
-        self.train_active_order[self.current_batch] = idxs
+        if self.params.memory_buffer is None:
+            # Activate train, deactivate test
+            self.data_train.activate_samples(idxs)
+            self.data_test.deactivate_samples(idxs)
+            self.train_active_order[self.current_batch] = idxs
+        elif self.params.memory_buffer == 'ring':
+            # Deactivate oldest train, activate oldest train, deactivate test
+            self.data_train.activate_samples(idxs)
+            self.train_active_order[self.current_batch] = idxs
+            if len(self.data_train.active_idxs) > self.params.buffer_cap:
+                active_order = []
+                keys = list(self.train_active_order.keys())
+                keys.sort()
+                for kk in keys:
+                    active_order += self.train_active_order[kk]
+                rem_idxs = active_order[:-self.params.buffer_cap]
+                self.data_train.deactivate_samples(rem_idxs)
+                for kk in self.train_active_order:
+                    for ii in rem_idxs:
+                        if ii in self.train_active_order[kk]:
+                            self.train_active_order[kk].remove(ii)
+            self.data_test.deactivate_samples(idxs)
 
     def forget_samples(self):
         if self.forget_n_batches is not None:
@@ -441,9 +459,11 @@ if __name__=='__main__':
     data_module.ds[len(data_module.ds)-1]
     data_module.label_boot()
     data_module.next_batch()
-    data_module.transfer_samples([2,4])
+    # data_module.transfer_samples([2,4])
+    data_module.transfer_samples(list(np.arange(719)))
     data_module.next_batch()
-    data_module.transfer_samples([3,5])
+    # data_module.transfer_samples([3,5])
+    data_module.transfer_samples(list(np.arange(719)))
     print(data_module.get_current_session_name())
     data_module.ds.get_class_balance()
     print(len(data_module.ds), 'samples')
