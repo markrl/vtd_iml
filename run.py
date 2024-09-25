@@ -286,10 +286,13 @@ def main():
         else:
             torch.save(module.model.state_dict(), os.path.join(out_dir, 'state_dict.pt'))
         data_module.save_active_files(os.path.join(out_dir, 'al_samples.txt'))
+    return os.path.join(out_dir, 'time.txt')
 
 if __name__=='__main__':
     import time
     start_time = time.time()
-    main()
+    time_out = main()
     time_elapsed = time.time()-start_time
     print(time_elapsed)
+    with open(time_out, 'w') as f:
+        f.write(time_elapsed)
