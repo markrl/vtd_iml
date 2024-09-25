@@ -108,11 +108,17 @@ class ImlDataModule(LightningDataModule):
             # Activate train, deactivate test
             self.data_train.activate_samples(idxs)
             self.data_test.deactivate_samples(idxs)
-            self.train_active_order[self.current_batch] = idxs
+            if self.current_batch in self.train_active_order.keys():
+                self.train_active_order[self.current_batch] += idxs
+            else:
+                self.train_active_order[self.current_batch] = idxs
         elif self.params.memory_buffer == 'ring':
             # Deactivate oldest train, activate oldest train, deactivate test
             self.data_train.activate_samples(idxs)
-            self.train_active_order[self.current_batch] = idxs
+            if self.current_batch in self.train_active_order.keys():
+                self.train_active_order[self.current_batch] += idxs
+            else:
+                self.train_active_order[self.current_batch] = idxs
             if len(self.data_train.active_idxs) > self.params.buffer_cap:
                 active_order = []
                 keys = list(self.train_active_order.keys())
