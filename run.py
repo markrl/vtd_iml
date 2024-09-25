@@ -295,4 +295,4 @@ if __name__=='__main__':
     time_elapsed = time.time()-start_time
     print(time_elapsed)
     with open(time_out, 'w') as f:
-        f.write(time_elapsed)
+        f.write(f'{time_elapsed:.2f}')
