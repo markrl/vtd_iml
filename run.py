@@ -231,7 +231,7 @@ def main():
         elif params.auto_weight and params.class_loss=='xent':
             update_xent(module, data_module, params.auto_mult)
         # Delete old checkpoints
-        os.system(f'rm -rf {ckpt_dir}/best.ckpt')
+        os.system(f'rm -rf {ckpt_dir}/best*.ckpt')
         # Train model on adaptation pool
         trainer.fit(module, data_module)
         # Load model with from best epoch for this batch if indicated
