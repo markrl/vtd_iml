@@ -2,6 +2,9 @@ import torch
 import torch.nn as nn
 from audlib.nn.nn import MLP
 
+from qtorch import FixedPoint
+from qtorch.quant import Quantizer
+
 class ClassModel(nn.Module):
     def __init__(self, params):
         super().__init__()
@@ -97,6 +100,84 @@ class CompClassModel(CompModel):
         if self.rnn is not None:
             x = self.rnn(x)[0]
             x = torch.mean(x, dim=1)
+        embeds = self.mlp(x)
+        logits = self.classifier(embeds)
+        return embeds, self.activate_out(logits), logits
+    
+
+class QuantizedCompClassModel(nn.Module):
+    def __init__(self, params):
+        super().__init__()
+        self.params = params
+        dim = 0
+        for rr in params.feat_root.split(','):
+            if 'ecapa' in rr:
+                dim += 256
+            elif 'wavlm' in rr:
+                dim += 1024
+            else:
+                dim += 512
+        dim *= params.context*2+1
+        quant_num = FixedPoint(wl=7, fl=5)
+        quant = Quantizer(forward_number=quant_num,
+                            backward_number=quant_num, 
+                            forward_rounding='nearest',
+                            backward_rounding='nearest')
+        self.quant = quant
+        self.bn_layer = nn.Sequential(
+            nn.BatchNorm1d(dim),
+            quant,
+        )
+        self.mlp = nn.Sequential(
+            nn.Linear(dim, params.comp_hidden),
+            quant,
+            nn.BatchNorm1d(params.comp_hidden),
+            quant,
+            nn.LeakyReLU(),
+            quant,
+        )
+        self.mlp += nn.Sequential(
+            nn.Linear(params.comp_hidden, params.comp_hidden),
+            quant,
+            nn.BatchNorm1d(params.comp_hidden),
+            quant,
+            nn.LeakyReLU(),
+            quant,
+        )*params.comp_layers
+        self.mlp += nn.Sequential(
+            nn.Linear(params.comp_hidden, params.embed_dim),
+            quant
+        )
+
+        self.classifier = nn.Sequential(
+            nn.Linear(params.embed_dim, params.class_hidden),
+            quant,
+            nn.BatchNorm1d(params.class_hidden),
+            quant,
+            nn.LeakyReLU(),
+            quant,
+        )
+        self.classifier += nn.Sequential(
+            nn.Linear(params.class_hidden, params.class_hidden),
+            quant,
+            nn.BatchNorm1d(params.class_hidden),
+            quant,
+            nn.LeakyReLU(),
+            quant,
+        )*params.class_layers
+        self.classifier += nn.Sequential(
+            nn.Linear(params.class_hidden, 2),
+            quant
+        )
+        self.activate_out = nn.Sequential(
+            nn.LogSoftmax(dim=-1),
+            quant,
+        )
+
+    def forward(self, x):
+        x = self.quant(x)
+        if not self.params.no_initial_bn:
+            x = self.bn_layer(x)
         embeds = self.mlp(x)
         logits = self.classifier(embeds)
         return embeds, self.activate_out(logits), logits

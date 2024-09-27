@@ -148,6 +148,8 @@ def get_params():
                         help='apply gap filling')
     parser.add_argument('--ensemble', default=False, action='store_true',
                         help='use ensemble model')
+    parser.add_argument('--quantize', default=False, action='store_true',
+                        help='use quantized (qtorch) model with fixed-point numerical type')
 
     # Data arguments
     # parser.add_argument('--feat_root', type=str, default='/data/VTD/wavlm_11k_1hr/,/data/VTD/xvectors_11k_1hr',

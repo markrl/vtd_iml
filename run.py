@@ -24,10 +24,14 @@ from pdb import set_trace
 
 def main():
     torch.set_num_threads(1)
-    # Set pytorch precision
-    torch.set_float32_matmul_precision('high')
+    torch.use_deterministic_algorithms(True)
     # Get and handle parameters
     params = get_params()
+    # Set pytorch precision
+    if params.quantize:
+        torch.set_float32_matmul_precision('medium')
+    else:
+        torch.set_float32_matmul_precision('high')
     # Determine whether to use a GPU
     use_gpu = (params.gpus>0 and torch.cuda.is_available())
     if params.overfit_batches >= 1:
