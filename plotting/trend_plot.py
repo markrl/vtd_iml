@@ -21,6 +21,7 @@ def main(dir_code, metric='dcf', pre_post_diff='post', corpus_task_paradigm='cor
     pre_n_adapt, n_adapt, n_al = [], [], []
     al_metric, p_target = [], []
     corpora, tasks, paradigms, runs = [], [], [], []
+    times = []
     dir_code = dir_code.replace('%', '*')
     file_list = []
     for dc in dir_code.split(','):
@@ -45,6 +46,7 @@ def main(dir_code, metric='dcf', pre_post_diff='post', corpus_task_paradigm='cor
         al_metric.append(np.array(sheet['metric']))
         n_al.append(np.array(sheet['n_al']))
         p_target.append(np.array(sheet['p_target']))
+        times.append(np.array(sheet['time']))
         for kk in corpus_dict:
             if env_name in corpus_dict[kk]:
                 corpora.append(kk)
@@ -90,7 +92,7 @@ def main(dir_code, metric='dcf', pre_post_diff='post', corpus_task_paradigm='cor
     elif metric=='fnr':
         scores = fnrs
     elif metric=='fpr':
-        scores = fpr
+        scores = fprs
     elif metric=='imlm':
         scores = imlms
     elif metric=='plateau':
@@ -99,6 +101,8 @@ def main(dir_code, metric='dcf', pre_post_diff='post', corpus_task_paradigm='cor
         scores = n_al
     elif metric=='p_target':
         scores = p_target
+    elif metric=='time':
+        scores = times
 
     if corpus_task_paradigm=='corpus':
         decider = corpora
@@ -113,7 +117,6 @@ def main(dir_code, metric='dcf', pre_post_diff='post', corpus_task_paradigm='cor
         decider = runs
         decider_dict = run_dict
     
-    scores_dict = {}
     for kk in decider_dict:
         corpus_scores = [ss for cc,ss in zip(decider,scores) if cc==kk]
         if len(corpus_scores) > 0:
@@ -143,6 +146,8 @@ def main(dir_code, metric='dcf', pre_post_diff='post', corpus_task_paradigm='cor
         plt.ylabel('# AL queries')
     elif metric=='p_target':
         plt.ylabel('% target class prevalence')
+    elif metric=='time':
+        plt.ylabel('Time (seconds)')
     else:
         plt.ylabel(metric.upper())
     plt.xlim([0, min_len-1])
