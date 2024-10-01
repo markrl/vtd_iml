@@ -21,7 +21,7 @@ def main(rootdir):
     
     difference_s = np.sum(txt_times) - np.sum(csv_times)
     print(f'Difference between total and loop only: {seconds2hms(difference_s)}')
-    factor = np.sum(csv_times)/np.sum(data_times)
+    factor = np.sum(data_times)*3600/np.sum(csv_times)
     print(f'RT factor: {factor:.2f}')
           
 def seconds2hms(secs):
