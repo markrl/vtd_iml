@@ -21,7 +21,7 @@ def main(dir_code, metric='dcf', pre_post_diff='post', corpus_task_paradigm='cor
     pre_n_adapt, n_adapt, n_al = [], [], []
     al_metric, p_target = [], []
     corpora, tasks, paradigms, runs = [], [], [], []
-    times = []
+    times, adapt_pool_size = [], []
     dir_code = dir_code.replace('%', '*')
     file_list = []
     for dc in dir_code.split(','):
@@ -47,6 +47,7 @@ def main(dir_code, metric='dcf', pre_post_diff='post', corpus_task_paradigm='cor
         n_al.append(np.array(sheet['n_al']))
         p_target.append(np.array(sheet['p_target']))
         times.append(np.array(sheet['time']))
+        adapt_pool_size.append(np.array(sheet['n_samples']))
         for kk in corpus_dict:
             if env_name in corpus_dict[kk]:
                 corpora.append(kk)
@@ -103,6 +104,8 @@ def main(dir_code, metric='dcf', pre_post_diff='post', corpus_task_paradigm='cor
         scores = p_target
     elif metric=='time':
         scores = times
+    elif metric=='pool_size':
+        scores = adapt_pool_size
 
     if corpus_task_paradigm=='corpus':
         decider = corpora
@@ -148,6 +151,8 @@ def main(dir_code, metric='dcf', pre_post_diff='post', corpus_task_paradigm='cor
         plt.ylabel('% target class prevalence')
     elif metric=='time':
         plt.ylabel('Time (seconds)')
+    elif metric=='pool_size':
+        plt.ylabel('Adaptation pool size (samples)')
     else:
         plt.ylabel(metric.upper())
     plt.xlim([0, min_len-1])
