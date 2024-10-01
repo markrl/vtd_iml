@@ -5,11 +5,7 @@ import torch.nn as nn
 
 from pytorch_lightning import LightningModule
 
-from qtorch import FixedPoint
-from qtorch.quant import Quantizer
-from qtorch.optim import OptimLP
-
-from src.model import CompClassModel, QuantizedCompClassModel
+from src.model import CompClassModel
 from ensemble.ensemble_model import ArfModel
 from utils.utils import ContrastiveLoss, DcfLoss, ImlmLoss, aDcfLoss, FocalLoss
 
@@ -24,10 +20,7 @@ class VtdModule(LightningModule):
             self.model = ArfModel(params)
             self.automatic_optimization = False
         else:
-            if params.quantize:
-                self.model = QuantizedCompClassModel(params)
-            else:
-                self.model = CompClassModel(params)
+            self.model = CompClassModel(params)
             
         reduction = 'none' if params.cb_loss else 'mean'
         if params.class_loss=='xent':
@@ -207,14 +200,6 @@ class VtdModule(LightningModule):
             return None
         opt = torch.optim.Adam(self.parameters(), lr=self.params.lr,
                                 weight_decay=self.params.wd)
-        if self.params.quantize:
-            quant_num = FixedPoint(wl=7, fl=5)
-            quant = Quantizer(forward_number=quant_num,
-                      backward_number=quant_num)
-            opt = OptimLP(opt,
-                    weight_quant=lambda x : quant(x),
-                    grad_quant=lambda x : quant(x),
-                    momentum_quant=lambda x : quant(x))
         if self.params.schedule_lr:
             sch = torch.optim.lr_scheduler.ReduceLROnPlateau(opt, mode=self.params.mode,
                                                              patience=self.params.lrs_patience, 
