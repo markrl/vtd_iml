@@ -6,6 +6,8 @@ import glob
 from copy import deepcopy
 import pickle
 
+from torch.profiler import profile, record_function, ProfilerActivity
+
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from pytorch_lightning.loggers.wandb import WandbLogger
@@ -92,16 +94,17 @@ def main():
     
     # Set up trainer callbacks
     callbacks = []
-    ckpt_dir = 'checkpoints/'+params.run_name
-    if os.path.exists(ckpt_dir):
-        os.system(f'rm -rf {ckpt_dir}')
-    os.mkdir(ckpt_dir)
-    callbacks.append(ModelCheckpoint(
-        dirpath=ckpt_dir,
-        filename='best',
-        monitor=params.monitor,
-        mode=params.mode
-    ))
+    if params.load_best:
+        ckpt_dir = 'checkpoints/'+params.run_name
+        if os.path.exists(ckpt_dir):
+            os.system(f'rm -rf {ckpt_dir}')
+        os.mkdir(ckpt_dir)
+        callbacks.append(ModelCheckpoint(
+            dirpath=ckpt_dir,
+            filename='best',
+            monitor=params.monitor,
+            mode=params.mode
+        ))
     callbacks.append(EarlyStopping(
         monitor=params.monitor,
         mode=params.mode,
@@ -144,7 +147,8 @@ def main():
     elif params.auto_weight and params.class_loss=='xent':
         update_xent(module, data_module, params.auto_mult)
     # Delete old checkpoints
-    os.system(f'rm -rf {ckpt_dir}/best*.ckpt') 
+    if params.load_best:
+        os.system(f'rm -rf {ckpt_dir}/best*.ckpt') 
     # Train on bootstrap corpus
     trainer.fit(module, data_module)
 
@@ -235,7 +239,8 @@ def main():
         elif params.auto_weight and params.class_loss=='xent':
             update_xent(module, data_module, params.auto_mult)
         # Delete old checkpoints
-        os.system(f'rm -rf {ckpt_dir}/best*.ckpt')
+        if params.load_best:
+            os.system(f'rm -rf {ckpt_dir}/best*.ckpt')
         # Train model on adaptation pool
         trainer.fit(module, data_module)
         # Load model with from best epoch for this batch if indicated
