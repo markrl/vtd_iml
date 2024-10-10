@@ -28,7 +28,7 @@ def get_params():
                         help='metric to monitor for callbacks')
     parser.add_argument('--mode', type=str, default='min',
                         help='min or max')
-    parser.add_argument('--patience', type=int, default=15,
+    parser.add_argument('--patience', type=int, default=5,
                         help='patience for callbacks')
     parser.add_argument('--min_delta', type=int, default=0,
                         help='tolerance for callbacks')

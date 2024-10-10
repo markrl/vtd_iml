@@ -85,8 +85,6 @@ class VtdModule(LightningModule):
             self.test_fns += torch.sum(torch.logical_and(y==1, pred==0))
             self.test_ps += torch.sum(y==1)
             self.test_ns += torch.sum(y==0)
-            self.test_scores.append(y_hat[:,1])
-            self.test_labels.append(y)
             return
         x,y,_,_ = batch
         y_hat = self(x)[1]
@@ -102,8 +100,6 @@ class VtdModule(LightningModule):
         self.test_fns += torch.sum(torch.logical_and(y==1, pred==0))
         self.test_ps += torch.sum(y==1)
         self.test_ns += torch.sum(y==0)
-        self.test_scores.append(torch.exp(y_hat[:,1]))
-        self.test_labels.append(y)
 
     def on_test_epoch_end(self):
         fnr = self.test_fns/self.test_ps if self.test_ps > 0 else 0.0
@@ -126,8 +122,6 @@ class VtdModule(LightningModule):
         self.test_fps = 0
         self.test_ps = 0
         self.test_ns = 0
-        self.test_scores = []
-        self.test_labels = []
 
     def configure_optimizers(self):
         if self.params.ensemble:
